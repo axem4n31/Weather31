@@ -14,10 +14,10 @@ async def handle_bot_events_router(request: Request, secret_key: str):
 
 
 @api_router.post('/find_out_the_weather')
-async def find_out_the_weather_router():
+async def find_out_the_weather_router(city: str):
     # тестовый роутер для проверки стороннего API без использования telegram
-    city = 'Старый Оскол'
-    lat, lon = await get_coordinates_by_name(city_name=city)  # получение долготы широты по наименованию города
+    # получение долготы широты по наименованию города
+    lat, lon = await get_coordinates_by_name(city_name=city)
     await get_temperature(lat=lat, lon=lon)
 
 

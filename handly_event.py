@@ -7,10 +7,10 @@ import settings
 async def handle_bot_events(request: Request, secret_key: str):
     check_secret_key(secret_key=secret_key)
     check_method(request=request)
-    # message = await request.json()
-    # print(message)
-    print("no message")
-    return HTTP_200_OK     # возвращает null
+    message = await request.json()
+    print(message)
+    # print("no message")
+    return HTTP_200_OK
 
 
 def check_secret_key(secret_key: str):
