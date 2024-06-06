@@ -2,6 +2,7 @@ from starlette.status import HTTP_200_OK
 from fastapi import Request, HTTPException
 
 import settings
+from telegram_bot import send_message
 
 
 async def handle_bot_events(request: Request, secret_key: str):
