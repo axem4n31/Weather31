@@ -2,7 +2,12 @@ from starlette.status import HTTP_200_OK
 from fastapi import Request, HTTPException
 
 import settings
-from telegram_bot import send_message
+from events import start_event
+
+events = {
+    "/start": start_event,
+    "Текущая погода 🌡️": start_event
+}
 
 
 async def handle_bot_events(request: Request, secret_key: str):
@@ -10,8 +15,11 @@ async def handle_bot_events(request: Request, secret_key: str):
     check_method(request=request)
     message = await request.json()
     print(message)
-    # print("no message")
+    if 'message' in message:
+        if message['message']['text'] in events:
+            await events[message['message']['text']](message)
     return HTTP_200_OK
+
 
 
 def check_secret_key(secret_key: str):

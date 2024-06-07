@@ -2,7 +2,7 @@ from fastapi import APIRouter, Request
 import httpx
 from handly_event import handle_bot_events
 from service import get_coordinates_by_name, get_temperature
-from telegram_bot import send_message
+
 
 event_router = APIRouter(prefix="/handle_bot_events", tags=["Handle events"])
 api_router = APIRouter(prefix="/api", tags=["API"])
@@ -20,6 +20,5 @@ async def find_out_the_weather_router(city: str):
     # получение долготы широты по наименованию города
     lat, lon = await get_coordinates_by_name(city_name=city)
     await get_temperature(lat=lat, lon=lon)
-    await send_message()
 
 

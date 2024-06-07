@@ -1,3 +1,5 @@
+import json
+
 import httpx
 import settings
 
@@ -24,3 +26,18 @@ async def get_temperature(lat, lon):
     print(message['current']['temp_c'])
 
 
+async def send_message(chat_id: int, text: str, reply_markup: None | dict):
+    url = settings.TELEGRAM_API_URL + 'sendMessage'
+    reply_markup_json = json.dumps(reply_markup)
+    params = {
+        'chat_id': chat_id,
+        'text': text,
+        'reply_markup': reply_markup_json
+    }
+
+    response = await client.post(url, data=params)
+    print(response.json())
+
+
+async def location_from_user():
+    pass
