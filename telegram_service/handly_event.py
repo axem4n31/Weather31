@@ -4,7 +4,7 @@ from fastapi import Request, HTTPException, Depends
 
 import settings
 from models.model_settings import db_helper
-from telegram_service.events import start_event, help_event
+from telegram_service.events import start_event, help_event, registration_event
 
 events_with_db = {
     "/start": start_event,
@@ -22,6 +22,8 @@ async def handle_bot_events(request: Request, secret_key: str, db: AsyncSession 
     message = await request.json()
     print(message)
     if 'message' in message:
+        if message['message']['text'] not in events_with_db and message['message']['text'] not in events_without_db:
+            await registration_event(message=message, db=db)
         if message['message']['text'] in events_with_db:
             await events_with_db[message['message']['text']](message, db=db)
         if message['message']['text'] in events_without_db:

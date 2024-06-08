@@ -1,20 +1,19 @@
 import httpx
 import settings
-from models.schemas import WeatherSchema
+from models.schemas import WeatherSchema, CoordinatesSchema
 
 client = httpx.AsyncClient()
 
 
-async def get_city_coordinates(city_name: str):
+async def get_city_coordinates(city_name: str) -> CoordinatesSchema | None:
     url = settings.GET_COORD_API + 'direct?q=' + city_name + '&limit=1'
     url += '&appid=' + settings.COORD_API_TOKEN
     response = await client.get(url, timeout=10)
     message = response.json()
-    if message is None:
+    print(message)
+    if not message:
         return None
-    lat = message[0]['lat']
-    lon = message[0]['lon']
-    return lat, lon
+    return CoordinatesSchema(lat=message[0]['lat'], lon=message[0]['lon'])
 
 
 async def get_current_weather(lat, lon):
