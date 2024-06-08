@@ -1,4 +1,4 @@
-from model_settings import Base
+from .model_settings import Base
 from sqlalchemy import Column, Integer, String, Float, JSON
 
 
