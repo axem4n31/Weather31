@@ -1,5 +1,6 @@
-from model_settings import Base
+from .model_settings import Base
 from sqlalchemy import Column, Integer, String, Float, JSON
+
 
 class User(Base):
     __tablename__ = 'User'
