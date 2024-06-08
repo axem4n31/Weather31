@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 
 from routers import event_router, api_router
-from webhook import set_webhook, remove_webhook
+from telegram_service.webhook import set_webhook, remove_webhook
 
 app = FastAPI(
     title="Weather31",
