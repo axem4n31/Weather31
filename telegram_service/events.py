@@ -21,8 +21,8 @@ async def start_event(message: dict, db: AsyncSession = Depends(db_helper.scoped
         return await send_message(chat_id=chat_id, text=text, reply_markup=markup_inline_get_location)
     lat, lon = await get_user_coordinates(user_tg_id=user_tg_id, db=db)
     current_weather = await get_current_weather(lat=lat, lon=lon)
-    # временный словари
-    text = f"{current_weather.temp}°C ощущается как {current_weather.feels_like}°C, Облачность {current_weather.cloud}%"
+    text = f"{current_weather.text}, {current_weather.temp}°C ощущается как {current_weather.feels_like}°C." \
+           f" Облачность {current_weather.cloud}%. Влажность {current_weather.humidity}%."
     await send_message(chat_id=chat_id, text=text, reply_markup=markup_keyboard)
 
 

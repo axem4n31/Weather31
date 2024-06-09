@@ -11,7 +11,8 @@ class WeatherSchema(BaseModel):
     uv: int  # Индекс ультрофиолета
     speed_wind: float  # Скорость ветра
     gust_wind: float  # Порыв ветра
-
+    humidity: int  #процент влажности
+    text: str  # Описание
 
 class CoordinatesSchema(BaseModel):
     lat: float

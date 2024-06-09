@@ -21,7 +21,7 @@ async def handle_bot_events(request: Request, secret_key: str, db: AsyncSession 
     check_method(request=request)
     message = await request.json()
     print(message)
-    if 'message' in message:
+    if 'message' in message and 'text' in message['message']:
         if message['message']['text'] not in events_with_db and message['message']['text'] not in events_without_db:
             await registration_event(message=message, db=db)
         if message['message']['text'] in events_with_db:

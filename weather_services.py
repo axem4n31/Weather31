@@ -18,9 +18,9 @@ async def get_city_coordinates(city_name: str) -> CoordinatesSchema | None:
 
 async def get_current_weather(lat, lon):
 
-    url = settings.BASE_TEMPERATURE_API + 'current.json'
+    url = settings.BASE_TEMPERATURE_API + 'forecast.json'
     url += '?key=' + settings.WEATHER_API_TOKEN
-    url += f"&q={lat},{lon}"
+    url += f"&q={lat},{lon}" + '&days=1' + '&lang=ru'
     response = await client.get(url, timeout=10)
     weather_data = response.json()
     print(weather_data)
@@ -33,6 +33,8 @@ async def get_current_weather(lat, lon):
         cloud=weather_data['current']['cloud'],
         uv=weather_data['current']['uv'],
         speed_wind=weather_data['current']['wind_kph'],
-        gust_wind=weather_data['current']['gust_kph']
+        gust_wind=weather_data['current']['gust_kph'],
+        humidity=weather_data['current']['humidity'],
+        text=weather_data['current']['condition']['text'],
     )
     return weather
