@@ -1,3 +1,5 @@
+
+
 markup_keyboard = {
         "keyboard": [
             [{"text": "Текущая погода 🌡️"}],
@@ -7,7 +9,13 @@ markup_keyboard = {
         "resize_keyboard": True
     }
 markup_inline_get_location = {
-        "inline_keyboard": [
-            [{"text": "Поделиться геолокацией", "callback_data": "share_location"}]
-            ]
-    }
+  "inline_keyboard": [
+    [
+      {
+        "text": "Поделиться геолокацией",
+        "callback_data": "share_location",
+        "request_location": True
+      }
+    ]
+  ]
+}

@@ -1,6 +1,7 @@
 from os import getenv
 from dotenv import load_dotenv
 
+
 load_dotenv()
 
 TOKEN = getenv('TG_TOKEN')
@@ -12,3 +13,15 @@ COORD_API_TOKEN = getenv('COORD_API_TOKEN')
 GET_COORD_API = 'http://api.openweathermap.org/geo/1.0/'
 BASE_TEMPERATURE_API = 'http://api.weatherapi.com/v1/'
 WEATHER_API_TOKEN = getenv('WEATHER_API_TOKEN')
+
+
+help_text = "/start - узнать текущую погоду" \
+                "\n/forecast - узнать прогноз погоды" \
+                "\n/change_region - изменить регион" \
+                "\n/notifications - настройка уведомлений"
+
+not_found_city_text = 'Город не найден, введите корректное наименование.' \
+           '\nДля большей информации воспользуйтесь командой /help'
+
+location_text = "Для получения информации о погоде, пожалуйста, " \
+           "укажите название города (напишите его в чат) или поделитесь геолокацией"

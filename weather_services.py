@@ -13,17 +13,19 @@ async def get_city_coordinates(city_name: str) -> CoordinatesSchema | None:
     print(message)
     if not message:
         return None
-    return CoordinatesSchema(lat=message[0]['lat'], lon=message[0]['lon'])
+    return CoordinatesSchema(city=message[0]['name'],
+                             region=message[0]['state'],
+                             country=message[0]['country'],
+                             lat=message[0]['lat'],
+                             lon=message[0]['lon'])
 
 
-async def get_current_weather(lat, lon):
-
+async def get_weather(lat: float, lon: float):
     url = settings.BASE_TEMPERATURE_API + 'forecast.json'
     url += '?key=' + settings.WEATHER_API_TOKEN
     url += f"&q={lat},{lon}" + '&days=1' + '&lang=ru'
     response = await client.get(url, timeout=10)
     weather_data = response.json()
-    print(weather_data)
     weather = WeatherSchema(
         city=weather_data['location']['name'],
         region=weather_data['location']['region'],

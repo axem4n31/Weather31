@@ -1,3 +1,5 @@
+from typing import List
+
 from pydantic import BaseModel
 
 
@@ -14,6 +16,14 @@ class WeatherSchema(BaseModel):
     humidity: int  #процент влажности
     text: str  # Описание
 
+
 class CoordinatesSchema(BaseModel):
+    city: str
+    region: str
+    country: str
     lat: float
     lon: float
+
+
+class CityList(BaseModel):
+    cities: List[CoordinatesSchema]

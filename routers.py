@@ -4,7 +4,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from models.model_settings import db_helper
 from telegram_service.handly_event import handle_bot_events
-from weather_services import get_city_coordinates, get_current_weather
+from weather_services import get_city_coordinates, get_weather
 
 event_router = APIRouter(prefix="/handle_bot_events", tags=["Handle events"])
 api_router = APIRouter(prefix="/api", tags=["API"])
@@ -20,7 +20,8 @@ async def handle_bot_events_router(request: Request, secret_key: str, db: AsyncS
 async def find_out_the_weather_router(city: str):
     # тестовый роутер для проверки стороннего API без использования telegram
     # получение долготы широты по наименованию города
-    lat, lon = await get_city_coordinates(city_name=city)
-    await get_current_weather(lat=lat, lon=lon)
+    coord = await get_city_coordinates(city_name=city)
+    data = await get_weather(lat=coord.lat, lon=coord.lon)
+    return data
 
 
