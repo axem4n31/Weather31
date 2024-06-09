@@ -1,13 +1,11 @@
 import json
 
 import httpx
-from fastapi import Depends
 from sqlalchemy import select, and_
 from sqlalchemy.ext.asyncio import AsyncSession
 
 import settings
 from models.model import User
-from models.model_settings import db_helper
 
 client = httpx.AsyncClient()
 
@@ -22,7 +20,6 @@ async def send_message(chat_id: int, text: str, reply_markup: None | dict):
     }
 
     response = await client.post(url, data=params)
-    print(response.json())
 
 
 async def check_user_location(user_tg_id: int, db: AsyncSession):
@@ -38,4 +35,12 @@ async def get_user_coordinates(user_tg_id: int, db: AsyncSession):
     lon = user.lon
     return lat, lon
 
+
+async def delete_message(chat_id: int, message_id: int):
+    url = settings.TELEGRAM_API_URL + 'deleteMessage'
+    params = {
+        "chat_id": chat_id,
+        "message_id": message_id
+    }
+    response = await client.post(url, data=params)
 

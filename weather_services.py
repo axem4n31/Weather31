@@ -14,7 +14,6 @@ async def get_city_coordinates(city_name: str) -> CoordinatesSchema | None:
     if not message:
         return None
     return CoordinatesSchema(city=message[0]['name'],
-                             region=message[0]['state'],
                              country=message[0]['country'],
                              lat=message[0]['lat'],
                              lon=message[0]['lon'])
@@ -26,6 +25,10 @@ async def get_weather(lat: float, lon: float):
     url += f"&q={lat},{lon}" + '&days=1' + '&lang=ru'
     response = await client.get(url, timeout=10)
     weather_data = response.json()
+    print(weather_data)
+    region = None
+    if 'state' in weather_data['location']:
+        region = weather_data['location']['state']
     weather = WeatherSchema(
         city=weather_data['location']['name'],
         region=weather_data['location']['region'],

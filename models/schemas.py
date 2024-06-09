@@ -19,7 +19,6 @@ class WeatherSchema(BaseModel):
 
 class CoordinatesSchema(BaseModel):
     city: str
-    region: str
     country: str
     lat: float
     lon: float

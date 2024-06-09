@@ -4,8 +4,9 @@ from fastapi import Request, HTTPException, Depends
 
 import settings
 from models.model_settings import db_helper
-from telegram_service.events import start_event, help_event, registration_event, change_region_event, forecast_event
-from telegram_service.service import send_message
+from telegram_service.events import start_event, help_event, registration_event, change_region_event, forecast_event, \
+    get_coordinates_from_user_event
+
 
 events_with_db = {
     "/start": start_event,
@@ -23,19 +24,28 @@ events_without_db = {
 
 async def handle_bot_events(request: Request, secret_key: str,
                             db: AsyncSession = Depends(db_helper.scoped_session_dependency)):
+    # Проверка секретного ключа и метода запроса
     check_secret_key(secret_key=secret_key)
     check_method(request=request)
+
+    # Получение данных из запроса
     message = await request.json()
-    if 'callback_query' in message:
-        # Обрабатываем callback-запрос
-        print(message)
-    elif 'message' in message and 'text' in message['message']:
-        if message['message']['text'] not in events_with_db and message['message']['text'] not in events_without_db:
-            await registration_event(message=message, db=db)
-        if message['message']['text'] in events_with_db:
-            await events_with_db[message['message']['text']](message, db=db)
-        if message['message']['text'] in events_without_db:
-            await events_without_db[message['message']['text']](message)
+    print(message)
+
+    if 'message' in message:
+        # Если в сообщении есть текст, обрабатываем его
+        if 'text' in message['message']:
+            text = message['message']['text']
+            if text in events_with_db:
+                await events_with_db[text](message, db=db)
+            elif text in events_without_db:
+                await events_without_db[text](message)
+            else:
+                await registration_event(message=message, db=db)
+
+        # Если в сообщении есть местоположение, вызываем соответствующую функцию
+        elif 'location' in message['message']:
+            await get_coordinates_from_user_event(message, db=db)
 
     return HTTP_200_OK
 

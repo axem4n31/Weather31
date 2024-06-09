@@ -12,7 +12,8 @@ api_router = APIRouter(prefix="/api", tags=["API"])
 client = httpx.AsyncClient()
 
 @event_router.post('/{secret_key:str}/')
-async def handle_bot_events_router(request: Request, secret_key: str, db: AsyncSession = Depends(db_helper.scoped_session_dependency)):
+async def handle_bot_events_router(request: Request, secret_key: str,
+                                   db: AsyncSession = Depends(db_helper.scoped_session_dependency)):
     await handle_bot_events(request=request, secret_key=secret_key, db=db)
 
 
