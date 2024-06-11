@@ -18,7 +18,8 @@ WEATHER_API_TOKEN = getenv('WEATHER_API_TOKEN')
 help_text = "/start - узнать текущую погоду" \
                 "\n/forecast - узнать прогноз погоды" \
                 "\n/change_region - изменить регион" \
-                "\n/notifications - настройка уведомлений"
+                "\n/notifications - настройка уведомлений" \
+                "\nЕсли у вас есть жалоба или предложение, пишите на ibdcorporation31@gmail.com"
 
 not_found_city_text = 'Город не найден, введите корректное наименование.' \
            '\nДля большей информации воспользуйтесь командой /help'
