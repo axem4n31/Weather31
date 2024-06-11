@@ -6,17 +6,7 @@ markup_keyboard = {
     ],
     "resize_keyboard": True
 }
-markup_inline_get_location = {
-    "inline_keyboard": [
-        [
-            {
-                "text": "Поделиться геолокацией",
-                "callback_data": "share_location",
-                "request_location": True
-            }
-        ]
-    ]
-}
+
 get_location_keyboard = {
         "keyboard": [
                 [{"text": "Поделиться геолокацией", "request_location": True}]],

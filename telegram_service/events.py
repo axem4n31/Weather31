@@ -18,7 +18,7 @@ async def start_event(message: dict, db: AsyncSession = Depends(db_helper.scoped
     chat_id = int(message['message']['chat']['id'])
     user_tg_id = int(message['message']['from']['id'])
     if await check_user_location(user_tg_id=user_tg_id, db=db) is False:
-        return await send_message(chat_id=chat_id, text=settings.location_text, reply_markup=markup_inline_get_location)
+        return await send_message(chat_id=chat_id, text=settings.location_text, reply_markup=get_location_keyboard)
     lat, lon = await get_user_coordinates(user_tg_id=user_tg_id, db=db)
     current_weather = await get_weather(lat=lat, lon=lon, days=1)
     text = f"{current_weather.text}, {current_weather.temp}°C ощущается как {current_weather.feels_like}°C." \
@@ -32,7 +32,7 @@ async def forecast_event(message: dict, db: AsyncSession = Depends(db_helper.sco
     chat_id = int(message['message']['chat']['id'])
     user_tg_id = int(message['message']['from']['id'])
     if await check_user_location(user_tg_id=user_tg_id, db=db) is False:
-        return await send_message(chat_id=chat_id, text=settings.location_text, reply_markup=markup_inline_get_location)
+        return await send_message(chat_id=chat_id, text=settings.location_text, reply_markup=get_location_keyboard)
     lat, lon = await get_user_coordinates(user_tg_id=user_tg_id, db=db)
     current_weather = await get_weather(lat=lat, lon=lon, days=7)
     for day in current_weather.days:
@@ -91,3 +91,4 @@ async def get_coordinates_from_user_event(message: dict,
     if await create_user(user_tg_id=user_tg_id, coordinates_data=CoordinatesSchema(lat=lat, lon=lon), db=db) is True:
         return await send_message(chat_id=chat_id, text='Ваши данные успешно добавлены', reply_markup=markup_keyboard)
     await send_message(chat_id=chat_id, text='Город успешно изменён', reply_markup=markup_keyboard)
+
