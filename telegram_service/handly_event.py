@@ -5,8 +5,7 @@ from fastapi import Request, HTTPException, Depends
 import settings
 from models.model_settings import db_helper
 from telegram_service.events import start_event, help_event, registration_event, change_region_event, forecast_event, \
-    get_coordinates_from_user_event
-
+    get_coordinates_from_user_event, by_hourly_event
 
 events_with_db = {
     "/start": start_event,
@@ -46,6 +45,10 @@ async def handle_bot_events(request: Request, secret_key: str,
         # Если в сообщении есть местоположение, вызываем соответствующую функцию
         elif 'location' in message['message']:
             await get_coordinates_from_user_event(message, db=db)
+
+    elif 'callback_query' in message and 'data' in message['callback_query']:
+        # Если в запросе есть callback_query с данными, вызываем by_hourly_event
+        await by_hourly_event(message, db=db)
 
     return HTTP_200_OK
 

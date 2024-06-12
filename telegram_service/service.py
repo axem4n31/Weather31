@@ -22,7 +22,7 @@ async def send_message(chat_id: int, text: str, reply_markup: None | dict):
     response = await client.post(url, data=params)
 
 
-async def check_user_location(user_tg_id: int, db: AsyncSession):
+async def check_user_location(user_tg_id: int, db: AsyncSession) -> bool:
     user = await db.scalar(select(User).where(and_(User.user_tg_id == user_tg_id)))
     if user:
         return True

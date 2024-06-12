@@ -3,7 +3,19 @@ from typing import List
 from pydantic import BaseModel
 
 
-class Days(BaseModel):
+class HourSchema(BaseModel):
+    time: str
+    temp: float
+    feels_like: float
+    humidity: int
+    cloud: int
+    wind_kph: float
+    chance_of_rain: int
+    text: str
+
+
+class DaysSchema(BaseModel):
+    is_day: int  # Номер дня в массиве
     date: str  # Дата
     max_temp: float  # Максимальная температура
     min_temp: float  # Минимальня температура
@@ -11,6 +23,7 @@ class Days(BaseModel):
     max_wind_kph: float  # Максимальная скорость ветра
     uv: int  # Индекс ультрофиолета
     text: str  # Описание
+    hours: List[HourSchema]
 
 
 class WeatherSchema(BaseModel):
@@ -25,7 +38,7 @@ class WeatherSchema(BaseModel):
     gust_wind: float  # Порыв ветра
     humidity: int  # процент влажности
     text: str  # Описание
-    days: List[Days]
+    days: List[DaysSchema]
 
 
 class CoordinatesSchema(BaseModel):

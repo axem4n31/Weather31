@@ -1,6 +1,8 @@
+from typing import List
+
 import httpx
 import settings
-from models.schemas import WeatherSchema, CoordinatesSchema, Days
+from models.schemas import WeatherSchema, CoordinatesSchema, DaysSchema, HourSchema
 
 client = httpx.AsyncClient()
 
@@ -32,11 +34,25 @@ async def get_weather(lat: float, lon: float, days: int):
 
     # Создаем список для хранения данных о днях
     daily_forecasts = []
-
     # Извлекаем прогнозы на каждый день из данных
-    for forecast in weather_data['forecast']['forecastday'][:days]:
-        # Создаем объект Days с помощью данных из прогноза
-        daily_forecast = Days(
+    for index, forecast in enumerate(weather_data['forecast']['forecastday'][:days]):
+        hourly_forecasts_day = []
+        for hour_forecast in forecast['hour']:
+            # Создаем объект Hour с помощью данных из прогноза
+            hour = HourSchema(
+                time=hour_forecast['time'],
+                temp=hour_forecast['temp_c'],
+                feels_like=hour_forecast['feelslike_c'],
+                humidity=hour_forecast['humidity'],
+                cloud=hour_forecast['cloud'],
+                wind_kph=hour_forecast['wind_kph'],
+                chance_of_rain=hour_forecast['chance_of_rain'],
+                text=hour_forecast['condition']['text'],
+            )
+            # Добавляем объект Hour в список hourly_forecasts_day
+            hourly_forecasts_day.append(hour)
+        daily_forecast = DaysSchema(
+            is_day=index + 1,
             date=forecast['date'],
             max_temp=forecast['day']['maxtemp_c'],
             min_temp=forecast['day']['mintemp_c'],
@@ -44,6 +60,7 @@ async def get_weather(lat: float, lon: float, days: int):
             max_wind_kph=forecast['day']['maxwind_kph'],
             uv=int(forecast['day']['uv']),
             text=forecast['day']['condition']['text'],
+            hours=hourly_forecasts_day
         )
         # Добавляем объект Days в список daily_forecasts
         daily_forecasts.append(daily_forecast)
@@ -63,5 +80,44 @@ async def get_weather(lat: float, lon: float, days: int):
         text=weather_data['current']['condition']['text'],
         days=daily_forecasts
     )
-
     return weather
+
+
+async def get_weather_by_hours(lat: float, lon: float, days: int) -> List[DaysSchema]:
+    url = settings.BASE_TEMPERATURE_API + 'forecast.json'
+    url += '?key=' + settings.WEATHER_API_TOKEN
+    url += f"&q={lat},{lon}" + f"&days={days}" + '&lang=ru'
+    response = await client.get(url, timeout=10)
+    weather_data = response.json()
+    forecast_for_the_whole_days = []
+    for index, forecast in enumerate(weather_data['forecast']['forecastday'][:days]):
+        if index == days - 1:
+            hourly_forecasts_day = []
+            for hour_forecast in forecast['hour']:
+                # Создаем объект Hour с помощью данных из прогноза
+                hour = HourSchema(
+                    time=hour_forecast['time'],
+                    temp=hour_forecast['temp_c'],
+                    feels_like=hour_forecast['feelslike_c'],
+                    humidity=hour_forecast['humidity'],
+                    cloud=hour_forecast['cloud'],
+                    wind_kph=hour_forecast['wind_kph'],
+                    chance_of_rain=hour_forecast['chance_of_rain'],
+                    text=hour_forecast['condition']['text'],
+                )
+                # Добавляем объект Hour в список hourly_forecasts_day
+                hourly_forecasts_day.append(hour)
+            forecast_for_the_whole_day = DaysSchema(
+                is_day=index,
+                date=forecast['date'],
+                max_temp=forecast['day']['maxtemp_c'],
+                min_temp=forecast['day']['mintemp_c'],
+                daily_chance_of_rain=int(forecast['day']['daily_chance_of_rain']),
+                max_wind_kph=forecast['day']['maxwind_kph'],
+                uv=int(forecast['day']['uv']),
+                text=forecast['day']['condition']['text'],
+                hours=hourly_forecasts_day
+            )
+            forecast_for_the_whole_days.append(forecast_for_the_whole_day)
+    return forecast_for_the_whole_days
+
