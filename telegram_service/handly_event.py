@@ -20,6 +20,8 @@ events_without_db = {
     "Изменить регион 🌍": change_region_event,
 }
 
+# todo можно добавить проверку типа сообщений
+
 
 async def handle_bot_events(request: Request, secret_key: str,
                             db: AsyncSession = Depends(db_helper.scoped_session_dependency)):

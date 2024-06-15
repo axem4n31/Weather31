@@ -8,15 +8,20 @@ from models.model_services import create_user
 from models.model_settings import db_helper
 from models.schemas import CoordinatesSchema
 from telegram_service.service import send_message, check_user_location, get_user_coordinates, delete_message
-from telegram_service.utils import markup_keyboard, get_location_keyboard
+from telegram_service.utils import markup_keyboard, get_location_keyboard, UpdateMessage
 from weather_services import get_weather, get_city_coordinates, get_weather_by_hours
 
 client = httpx.AsyncClient()
 
 
-async def start_event(message: dict, db: AsyncSession = Depends(db_helper.scoped_session_dependency)):
-    chat_id = int(message['message']['chat']['id'])
-    user_tg_id = int(message['message']['from']['id'])
+async def start_event(message: UpdateMessage.dict, db: AsyncSession = Depends(db_helper.scoped_session_dependency)):
+    """Ивент вызывается командой /start и начинает работу бота"""
+
+    message = UpdateMessage.parse_obj(message)
+    # chat_id = int(message['message']['chat']['id'])
+    # user_tg_id = int(message['message']['from']['id'])
+    chat_id = message.message.chat.id
+    user_tg_id = message.message.from_.id
     if await check_user_location(user_tg_id=user_tg_id, db=db) is False:
         return await send_message(chat_id=chat_id, text=settings.location_text, reply_markup=get_location_keyboard)
     lat, lon = await get_user_coordinates(user_tg_id=user_tg_id, db=db)
@@ -76,11 +81,19 @@ async def forecast_event(message: dict, db: AsyncSession = Depends(db_helper.sco
         await send_message(chat_id=chat_id, text=text, reply_markup=more_details_by_hour)
 
 
-async def registration_event(message: dict, db: AsyncSession = Depends(db_helper.scoped_session_dependency)):
+async def registration_event(
+        message: UpdateMessage.dict,
+        db: AsyncSession = Depends(db_helper.scoped_session_dependency)
+):
+    """Функция вызывается для добавления"""
     # Извлекаем необходимые данные из сообщения
-    city_name = message['message']['text']
-    chat_id = int(message['message']['chat']['id'])
-    user_tg_id = int(message['message']['from']['id'])
+    message = UpdateMessage.parse_obj(message)
+    # city_name = message['message']['text']
+    # chat_id = int(message['message']['chat']['id'])
+    # user_tg_id = int(message['message']['from']['id'])
+    city_name = message.message.text
+    chat_id = message.message.chat.id
+    user_tg_id = message.message.from_.id
 
     # Получаем координаты города
     coordinates_data = await get_city_coordinates(city_name=city_name)
