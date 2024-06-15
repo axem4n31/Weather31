@@ -1,6 +1,8 @@
 from typing import List
 
 from pydantic import BaseModel
+from datetime import time
+
 
 
 class HourSchema(BaseModel):
@@ -52,3 +54,7 @@ class CityList(BaseModel):
     cities: List[CoordinatesSchema]
 
 
+class NotificationSchema(BaseModel):
+    chat_id: int
+    utc: str
+    time: List[time] = None

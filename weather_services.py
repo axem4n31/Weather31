@@ -1,5 +1,8 @@
 from typing import List
 
+from pytz import timezone
+from datetime import datetime
+import pytz, timezonefinder
 import httpx
 import settings
 from models.schemas import WeatherSchema, CoordinatesSchema, DaysSchema, HourSchema
@@ -121,3 +124,13 @@ async def get_weather_by_hours(lat: float, lon: float, days: int) -> List[DaysSc
             forecast_for_the_whole_days.append(forecast_for_the_whole_day)
     return forecast_for_the_whole_days
 
+
+def get_utc_time(lat: float, lon: float):
+    # Определяем объект часового пояса на основе координат
+    tf = timezonefinder.TimezoneFinder()
+
+    timezone_str = tf.certain_timezone_at(lat=lat, lng=lon)
+    if timezone_str is None:
+        print('Такого часового пояса нет')
+
+    return timezone_str

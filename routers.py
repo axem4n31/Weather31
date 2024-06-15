@@ -11,6 +11,7 @@ api_router = APIRouter(prefix="/api", tags=["API"])
 
 client = httpx.AsyncClient()
 
+
 @event_router.post('/{secret_key:str}/')
 async def handle_bot_events_router(request: Request, secret_key: str,
                                    db: AsyncSession = Depends(db_helper.scoped_session_dependency)):
@@ -22,7 +23,7 @@ async def find_out_the_weather_router(city: str):
     # тестовый роутер для проверки стороннего API без использования telegram
     # получение долготы широты по наименованию города
     coord = await get_city_coordinates(city_name=city)
-    data = await get_weather(lat=coord.lat, lon=coord.lon)
+    data = await get_weather(lat=coord.lat, lon=coord.lon, days=1)
     return data
 
 
