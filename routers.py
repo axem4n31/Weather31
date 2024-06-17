@@ -1,10 +1,11 @@
-from fastapi import APIRouter, Request, Depends
+from fastapi import APIRouter, Request, Depends, BackgroundTasks
 import httpx
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from models.model_settings import db_helper
 from telegram_service.handly_event import handle_bot_events
 from weather_services import get_city_coordinates, get_weather
+from tasks import add
 
 event_router = APIRouter(prefix="/handle_bot_events", tags=["Handle events"])
 api_router = APIRouter(prefix="/api", tags=["API"])
@@ -19,11 +20,17 @@ async def handle_bot_events_router(request: Request, secret_key: str,
 
 
 @api_router.post('/find_out_the_weather')
-async def find_out_the_weather_router(city: str):
+async def find_out_the_weather_router(city: str, background_tasks: BackgroundTasks):
     # тестовый роутер для проверки стороннего API без использования telegram
     # получение долготы широты по наименованию города
+    # Получаем координаты города
     coord = await get_city_coordinates(city_name=city)
+    # Получаем данные о погоде
     data = await get_weather(lat=coord.lat, lon=coord.lon, days=1)
+
+    email = "user@example.com"
+    message = f"Weather data for {city} received."
+    add.delay(4, 4)
     return data
 
 

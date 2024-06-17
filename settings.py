@@ -14,4 +14,4 @@ GET_COORD_API = 'http://api.openweathermap.org/geo/1.0/'
 BASE_TEMPERATURE_API = 'http://api.weatherapi.com/v1/'
 WEATHER_API_TOKEN = getenv('WEATHER_API_TOKEN')
 
-BROKER_URL = f"redis/{getenv('REDIS_HOST')}:6379/"
+BROKER_URL = f"redis://{getenv('REDIS_HOST')}:6379"

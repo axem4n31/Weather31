@@ -15,7 +15,6 @@ async def get_city_coordinates(city_name: str) -> CoordinatesSchema | None:
     url += '&appid=' + settings.COORD_API_TOKEN
     response = await client.get(url, timeout=10)
     message = response.json()
-    print(message)
     if not message:
         return None
     return CoordinatesSchema(city=message[0]['name'],
@@ -30,7 +29,6 @@ async def get_weather(lat: float, lon: float, days: int):
     url += f"&q={lat},{lon}" + f"&days={days}" + '&lang=ru'
     response = await client.get(url, timeout=10)
     weather_data = response.json()
-    print(weather_data)
     region = None
     if 'state' in weather_data['location']:
         region = weather_data['location']['state']
