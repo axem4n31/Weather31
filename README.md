@@ -29,7 +29,7 @@ xtunnel 8000
 Создайте файл .env и скопируйте тудаданные из файла env.template
 
 ### Для поключения celery и flower:
- celery -A tasks:app_celery worker --loglevel=INFO --pool=solo
+celery -A tasks:app_celery worker --loglevel=INFO --pool=solo
 celery -A tasks:app_celery flower
 
 ### Заполнение переменных окружения

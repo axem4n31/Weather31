@@ -1,6 +1,8 @@
+from datetime import datetime
 from celery import Celery
 from celery.utils.log import get_task_logger
 from settings import BROKER_URL
+from telegram_service.events import help_event
 
 logger = get_task_logger(__name__)
 
@@ -19,12 +21,16 @@ app_celery.conf.update(
 
 
 @app_celery.task
-def add(x, y):
-    print(f"x = {x}, y = {y}, z = {x * y}")
+async def add(x, y):
+
     data = {
         "x": x,
         "y": y,
         "z": x * y
     }
+    current_time = datetime.now()
+    print(f"Время выполнения: {current_time}")
+
     return data
+
 
