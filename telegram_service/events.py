@@ -122,13 +122,15 @@ async def registration_event(
 
 
 async def help_event(message: dict):
+    print("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA")
     chat_id = int(message['message']['chat']['id'])
     await send_message(chat_id=chat_id, text=telegram_service.utils.help_text, reply_markup=markup_keyboard)
 
 
 async def change_region_event(message: dict):
     chat_id = int(message['message']['chat']['id'])
-    return await send_message(chat_id=chat_id, text=telegram_service.utils.location_text, reply_markup=get_location_keyboard)
+    return await send_message(chat_id=chat_id, text=telegram_service.utils.location_text,
+                              reply_markup=get_location_keyboard)
 
 
 async def get_coordinates_from_user_event(message: dict,

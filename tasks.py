@@ -1,3 +1,4 @@
+import asyncio
 from datetime import datetime
 from celery import Celery
 from celery.utils.log import get_task_logger
@@ -20,17 +21,12 @@ app_celery.conf.update(
 )
 
 
-@app_celery.task
-async def add(x, y):
-
-    data = {
-        "x": x,
-        "y": y,
-        "z": x * y
-    }
-    current_time = datetime.now()
-    print(f"Время выполнения: {current_time}")
-
-    return data
+@app_celery.task(bind=True)
+def add(self, message: dict):
+    try:
+        print(message)
+        asyncio.run(help_event(message))
+    except Exception as e:
+        raise
 
 
