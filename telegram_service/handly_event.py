@@ -1,4 +1,3 @@
-import json
 
 from sqlalchemy.ext.asyncio import AsyncSession
 from starlette.status import HTTP_200_OK
@@ -45,10 +44,9 @@ async def handle_bot_events(request: Request, secret_key: str,
                 await events_with_db[text](message, db=db)
             elif text in events_without_db:
                 # await events_without_db[text](message)
-                eta_time = datetime.now() + timedelta(minutes=1) - timedelta(hours=3)
+                eta_time = datetime.now() + timedelta(seconds=5) - timedelta(hours=3)
                 print(eta_time)
-                result = add.apply_async(eta=eta_time, kwargs={'message': message})
-
+                add.apply_async(eta=eta_time, kwargs={'message': message})
             else:
                 await registration_event(message=message, db=db)
 

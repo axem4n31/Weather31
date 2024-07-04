@@ -31,6 +31,7 @@ xtunnel 8000
 ### Для поключения celery и flower:
 celery -A tasks:app_celery worker --loglevel=INFO --pool=solo
 celery -A tasks:app_celery flower
+celery -A tasks beat --loglevel=info
 
 ### Заполнение переменных окружения
 TG_TOKEN - переменная для токена вашего Telegram бота

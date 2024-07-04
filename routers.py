@@ -28,5 +28,4 @@ async def find_out_the_weather_router(city: str):
     coord = await get_city_coordinates(city_name=city)
     # Получаем данные о погоде
     data = await get_weather(lat=coord.lat, lon=coord.lon, days=1)
-    add.apply_async(args=[4, 4])
     return data
