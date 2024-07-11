@@ -4,7 +4,6 @@ from pydantic import BaseModel
 from datetime import time
 
 
-
 class HourSchema(BaseModel):
     time: str
     temp: float
@@ -44,8 +43,8 @@ class WeatherSchema(BaseModel):
 
 
 class CoordinatesSchema(BaseModel):
-    city: str
-    country: str
+    city: str | None
+    country: str | None
     lat: float
     lon: float
 
