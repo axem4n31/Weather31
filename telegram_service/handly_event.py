@@ -46,7 +46,7 @@ async def handle_bot_events(request: Request, secret_key: str,
                 # await events_without_db[text](message)
                 eta_time = datetime.now() + timedelta(seconds=5) - timedelta(hours=3)
                 print(eta_time)
-                add.apply_async(eta=eta_time, kwargs={'message': message})
+                add.apply_async(args=[message], eta=eta_time)
             else:
                 await registration_event(message=message, db=db)
 
