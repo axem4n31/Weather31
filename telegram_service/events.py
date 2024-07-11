@@ -3,7 +3,6 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 import httpx
 
-import settings
 import telegram_service.utils
 from models.model_services import create_or_update_user
 from models.model_settings import db_helper
@@ -24,7 +23,8 @@ async def start_event(message: UpdateMessage.dict, db: AsyncSession = Depends(db
     chat_id = message.message.chat.id
     user_tg_id = message.message.from_.id
     if await check_user_location(user_tg_id=user_tg_id, db=db) is False:
-        return await send_message(chat_id=chat_id, text=telegram_service.utils.location_text, reply_markup=get_location_keyboard)
+        return await send_message(chat_id=chat_id, text=telegram_service.utils.location_text,
+                                  reply_markup=get_location_keyboard)
     lat, lon = await get_user_coordinates(user_tg_id=user_tg_id, db=db)
     current_weather = await get_weather(lat=lat, lon=lon, days=1)
     more_details_by_hour = {
@@ -64,7 +64,8 @@ async def forecast_event(message: dict, db: AsyncSession = Depends(db_helper.sco
     chat_id = int(message['message']['chat']['id'])
     user_tg_id = int(message['message']['from']['id'])
     if await check_user_location(user_tg_id=user_tg_id, db=db) is False:
-        return await send_message(chat_id=chat_id, text=telegram_service.utils.location_text, reply_markup=get_location_keyboard)
+        return await send_message(chat_id=chat_id, text=telegram_service.utils.location_text,
+                                  reply_markup=get_location_keyboard)
     lat, lon = await get_user_coordinates(user_tg_id=user_tg_id, db=db)
     current_weather = await get_weather(lat=lat, lon=lon, days=7)
     for day in current_weather.days:
@@ -100,7 +101,8 @@ async def registration_event(
 
     if coordinates_data is None:
         # Если координаты не найдены, отправляем сообщение о неудаче и возвращаемся
-        await send_message(chat_id=chat_id, text=telegram_service.utils.not_found_city_text, reply_markup=markup_keyboard)
+        await send_message(chat_id=chat_id, text=telegram_service.utils.not_found_city_text,
+                           reply_markup=markup_keyboard)
         return
 
     # Создаем пользователя в базе данных
@@ -122,7 +124,6 @@ async def registration_event(
 
 
 async def help_event(message: dict):
-    print("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA")
     chat_id = int(message['message']['chat']['id'])
     await send_message(chat_id=chat_id, text=telegram_service.utils.help_text, reply_markup=markup_keyboard)
 
@@ -141,7 +142,8 @@ async def get_coordinates_from_user_event(message: dict,
     await delete_message(chat_id=chat_id, message_id=message_id)
     lat = message['message']['location']['latitude']
     lon = message['message']['location']['longitude']
-    if await create_or_update_user(user_tg_id=user_tg_id, coordinates_data=CoordinatesSchema(lat=lat, lon=lon), db=db) is True:
+    if await create_or_update_user(user_tg_id=user_tg_id,
+                                   coordinates_data=CoordinatesSchema(lat=lat, lon=lon), db=db) is True:
         return await send_message(chat_id=chat_id, text='Ваши данные успешно добавлены', reply_markup=markup_keyboard)
     await send_message(chat_id=chat_id, text='Город успешно изменён', reply_markup=markup_keyboard)
 
