@@ -29,9 +29,21 @@ xtunnel 8000
 Создайте файл .env и скопируйте тудаданные из файла env.template
 
 ### Для поключения celery и flower:
-celery -A tasks:app_celery worker --loglevel=INFO --pool=solo
+Запуск celery
+```
+celery -A tasks:app_celery worker --loglevel=INFO
+```
+Для того, чтобы отлавливать все логи --loglevel=debug
+
+Запуск flower 
+```
 celery -A tasks:app_celery flower
+```
+Запуск периодических задач
+```
 celery -A tasks beat --loglevel=info
+```
+
 
 ### Заполнение переменных окружения
 TG_TOKEN - переменная для токена вашего Telegram бота
