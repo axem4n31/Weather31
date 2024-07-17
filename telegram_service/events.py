@@ -1,32 +1,23 @@
 from fastapi import Depends
 from sqlalchemy.ext.asyncio import AsyncSession
-
-import httpx
-
 import telegram_service.utils
 from models.model_services import create_or_update_user
 from models.model_settings import db_helper
 from models.schemas import CoordinatesSchema, NotificationSchema
 from telegram_service.service import send_message, check_user_location, get_user_coordinates, delete_message
 from telegram_service.utils import markup_keyboard, get_location_keyboard, UpdateMessage
-from weather_services import get_weather, get_city_coordinates, get_weather_by_hours, get_utc_time
-
-client = httpx.AsyncClient()
+from app.weather_services import get_weather, get_city_coordinates, get_weather_by_hours, get_utc_time
 
 
-async def start_event(message: UpdateMessage.dict, db: AsyncSession = Depends(db_helper.scoped_session_dependency)):
-    """Ивент вызывается командой /start и начинает работу бота"""
+async def start_event(chat_id: int, user_tg_id: int, db: AsyncSession = Depends(db_helper.scoped_session_dependency)):
+    """The event is triggered by the command /start and starts the bot."""
 
-    message = UpdateMessage.parse_obj(message)
-    # chat_id = int(message['message']['chat']['id'])
-    # user_tg_id = int(message['message']['from']['id'])
-    chat_id = message.message.chat.id
-    user_tg_id = message.message.from_.id
     if await check_user_location(user_tg_id=user_tg_id, db=db) is False:
         return await send_message(chat_id=chat_id, text=telegram_service.utils.location_text,
                                   reply_markup=get_location_keyboard)
     lat, lon = await get_user_coordinates(user_tg_id=user_tg_id, db=db)
     current_weather = await get_weather(lat=lat, lon=lon, days=1)
+    print(current_weather)
     more_details_by_hour = {
         "inline_keyboard": [
             [{"text": "Подробней по часам", "callback_data": current_weather.days[0].is_day}]],
@@ -38,13 +29,13 @@ async def start_event(message: UpdateMessage.dict, db: AsyncSession = Depends(db
 
 
 async def by_hourly_event(message: dict, db: AsyncSession = Depends(db_helper.scoped_session_dependency)):
-    print('lol')
     user_tg_id = int(message['callback_query']['from']['id'])
     chat_id = int(message['callback_query']['message']['chat']['id'])
     lat, lon = await get_user_coordinates(user_tg_id=user_tg_id, db=db)
     weather_by_hours_list = await get_weather_by_hours(lat=lat, lon=lon, days=int(message['callback_query']['data']))
-    print(len(weather_by_hours_list), "ДЛИНААААААААА")
+
     # Проходимся по каждому прогнозу дня в списке прогнозов
+
     for weather_by_hours in weather_by_hours_list:
         print(weather_by_hours.text)
         # Проходимся по каждому часу в прогнозе текущего дня
@@ -59,10 +50,9 @@ async def by_hourly_event(message: dict, db: AsyncSession = Depends(db_helper.sc
             await send_message(chat_id=chat_id, text=text, reply_markup=markup_keyboard)
 
 
-async def forecast_event(message: dict, db: AsyncSession = Depends(db_helper.scoped_session_dependency)):
-    # Извлекаем необходимые данные из сообщения
-    chat_id = int(message['message']['chat']['id'])
-    user_tg_id = int(message['message']['from']['id'])
+async def forecast_event(chat_id: int, user_tg_id: int,
+                         db: AsyncSession = Depends(db_helper.scoped_session_dependency)):
+
     if await check_user_location(user_tg_id=user_tg_id, db=db) is False:
         return await send_message(chat_id=chat_id, text=telegram_service.utils.location_text,
                                   reply_markup=get_location_keyboard)
@@ -104,9 +94,7 @@ async def registration_event(
         await send_message(chat_id=chat_id, text=telegram_service.utils.not_found_city_text,
                            reply_markup=markup_keyboard)
         return
-
     # Создаем пользователя в базе данных
-
     utc = get_utc_time(lat=coordinates_data.lat, lon=coordinates_data.lon)
     notification = NotificationSchema(chat_id=chat_id, utc=utc)
     user_created = await create_or_update_user(
@@ -115,7 +103,6 @@ async def registration_event(
         notification=notification,
         db=db
     )
-
     # Отправляем соответствующее сообщение в зависимости от результата создания пользователя
     if user_created:
         await send_message(chat_id=chat_id, text='Ваши данные успешно добавлены', reply_markup=markup_keyboard)
@@ -123,13 +110,11 @@ async def registration_event(
         await send_message(chat_id=chat_id, text='Город успешно изменён', reply_markup=markup_keyboard)
 
 
-async def help_event(message: dict):
-    chat_id = int(message['message']['chat']['id'])
+async def help_event(chat_id: int) -> None:
     await send_message(chat_id=chat_id, text=telegram_service.utils.help_text, reply_markup=markup_keyboard)
 
 
-async def change_region_event(message: dict):
-    chat_id = int(message['message']['chat']['id'])
+async def change_region_event(chat_id: int):
     return await send_message(chat_id=chat_id, text=telegram_service.utils.location_text,
                               reply_markup=get_location_keyboard)
 
@@ -142,8 +127,9 @@ async def get_coordinates_from_user_event(message: dict,
     await delete_message(chat_id=chat_id, message_id=message_id)
     lat = message['message']['location']['latitude']
     lon = message['message']['location']['longitude']
-    if await create_or_update_user(user_tg_id=user_tg_id,
-                                   coordinates_data=CoordinatesSchema(lat=lat, lon=lon), db=db) is True:
-        return await send_message(chat_id=chat_id, text='Ваши данные успешно добавлены', reply_markup=markup_keyboard)
-    await send_message(chat_id=chat_id, text='Город успешно изменён', reply_markup=markup_keyboard)
+    if await create_or_update_user(coordinates_data=CoordinatesSchema(lat=lat, lon=lon),
+                                   user_tg_id=user_tg_id, db=db) is not True:
+        await send_message(chat_id=chat_id, text='Город успешно изменён', reply_markup=markup_keyboard)
+        return
+    return await send_message(chat_id=chat_id, text='Ваши данные успешно добавлены', reply_markup=markup_keyboard)
 
