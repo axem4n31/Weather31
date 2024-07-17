@@ -1,9 +1,7 @@
 """
-Настройка движка базы данных postgresql и redis
+Setting up PostgreSQL and Redis database engines.
 """
 from asyncio import current_task
-
-import redis.asyncio as redis
 from sqlalchemy.ext.asyncio import (
     create_async_engine,
     AsyncAttrs,
@@ -11,14 +9,14 @@ from sqlalchemy.ext.asyncio import (
     async_scoped_session,
     AsyncSession,
 )
-
 from sqlalchemy.orm import DeclarativeBase
 from dotenv import load_dotenv
 from os import getenv
 
 load_dotenv()
 
-POSTGRE_URL = f"postgresql+asyncpg://{getenv('POSTGRES_USER')}:{getenv('POSTGRES_PASSWORD')}@{getenv('POSTGRES_HOST')}:5432/{getenv('POSTGRES_DB')}"
+POSTGRE_URL = f"postgresql+asyncpg://{getenv('POSTGRES_USER')}:" \
+              f"{getenv('POSTGRES_PASSWORD')}@{getenv('POSTGRES_HOST')}:5432/{getenv('POSTGRES_DB')}"
 
 engine = create_async_engine(POSTGRE_URL, echo=True, future=True).connect()
 

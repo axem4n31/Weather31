@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 
-from routers import event_router, api_router
+from app.routers import api_router
+from telegram_service.router import event_router
 from telegram_service.webhook import set_webhook, remove_webhook
 
 app = FastAPI(
