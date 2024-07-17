@@ -1,11 +1,11 @@
 from celery import Celery
 from settings import BROKER_URL
-# Инициализация приложения Celery
+
 app_celery = Celery(
-    'tasks',
+    'background_tasks',
     backend=BROKER_URL,
     broker=BROKER_URL,
-    include=['tasks']
+    include=['background_tasks.tasks'],
 )
 
 app_celery.conf.update(
