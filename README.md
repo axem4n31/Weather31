@@ -31,17 +31,17 @@ xtunnel 8000
 ### Для поключения celery и flower:
 Запуск celery
 ```
-celery -A tasks:app_celery worker --loglevel=INFO
+celery -A background_tasks.celery_conf:app_celery worker --loglevel=INFO --pool=solo
 ```
 Для того, чтобы отлавливать все логи --loglevel=debug
 
 Запуск flower 
 ```
-celery -A tasks:app_celery flower
+celery -A background_tasks.celery_conf:app_celery flower
 ```
 Запуск периодических задач
 ```
-celery -A tasks beat --loglevel=info
+celery -A background_tasks.celery_conf:app_celery beat --loglevel=info
 ```
 
 
