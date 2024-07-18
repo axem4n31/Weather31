@@ -1,3 +1,5 @@
+from datetime import timedelta
+
 from celery import Celery
 from settings import BROKER_URL
 
@@ -13,5 +15,14 @@ app_celery.conf.update(
     result_serializer='json',
     timezone='UTC',
     enable_utc=True,
-    worker_concurrency=1,  # Опционально: количество одновременно выполняющихся задач
+    worker_concurrency=1,
+    result_expires=3600,
 )
+
+app_celery.conf.beat_schedule = {
+    'run-test-every-day': {
+        'task': 'background_tasks.tasks.test',
+        'schedule': timedelta(minutes=1),
+        'args': (5,),
+    },
+}
