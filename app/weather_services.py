@@ -1,6 +1,7 @@
 from typing import List
-import timezonefinder
+
 import httpx
+import timezonefinder
 import settings
 from models.schemas import WeatherSchema, CoordinatesSchema, DaysSchema, HourSchema
 from httpx import AsyncClient
@@ -23,6 +24,9 @@ async def get_city_coordinates(city_name: str) -> CoordinatesSchema | None:
                                  country=message[0]['country'],
                                  lat=message[0]['lat'],
                                  lon=message[0]['lon'])
+
+    except httpx.TimeoutException as timeout_err:
+        print(f"Timeout error occurred: {timeout_err}")
     except Exception as e:
         print(f"Error get_city_coordinates : {e}")
 
