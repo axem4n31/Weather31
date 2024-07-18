@@ -2,6 +2,8 @@
 Setting up PostgreSQL and Redis database engines.
 """
 from asyncio import current_task
+
+from sqlalchemy import create_engine
 from sqlalchemy.ext.asyncio import (
     create_async_engine,
     AsyncAttrs,
@@ -9,7 +11,7 @@ from sqlalchemy.ext.asyncio import (
     async_scoped_session,
     AsyncSession,
 )
-from sqlalchemy.orm import DeclarativeBase
+from sqlalchemy.orm import DeclarativeBase, sessionmaker
 from dotenv import load_dotenv
 from os import getenv
 
@@ -17,8 +19,11 @@ load_dotenv()
 
 POSTGRE_URL = f"postgresql+asyncpg://{getenv('POSTGRES_USER')}:" \
               f"{getenv('POSTGRES_PASSWORD')}@{getenv('POSTGRES_HOST')}:5432/{getenv('POSTGRES_DB')}"
+SYNC_POSTGRE_URL = f"postgresql+psycopg2://{getenv('POSTGRES_USER')}:" \
+                   f"{getenv('POSTGRES_PASSWORD')}@{getenv('POSTGRES_HOST')}:5432/{getenv('POSTGRES_DB')}"
 
-engine = create_async_engine(POSTGRE_URL, echo=True, future=True).connect()
+engine = create_async_engine(POSTGRE_URL, echo=True, future=True)
+sync_engine = create_engine(SYNC_POSTGRE_URL, echo=True, future=True)
 
 
 class Base(AsyncAttrs, DeclarativeBase):
@@ -26,6 +31,15 @@ class Base(AsyncAttrs, DeclarativeBase):
 
 
 async_session = async_sessionmaker(engine, expire_on_commit=False)
+sync_session = sessionmaker(autocommit=False, autoflush=False, bind=sync_engine)
+
+
+def get_db():
+    db = sync_session()
+    try:
+        yield db
+    finally:
+        db.close()
 
 
 # Dependency
