@@ -17,7 +17,6 @@ async def start_event(chat_id: int, user_tg_id: int, db: AsyncSession = Depends(
                                   reply_markup=get_location_keyboard)
     lat, lon = await get_user_coordinates(user_tg_id=user_tg_id, db=db)
     current_weather = await get_weather(lat=lat, lon=lon, days=1)
-    print(current_weather)
     more_details_by_hour = {
         "inline_keyboard": [
             [{"text": "Подробней по часам", "callback_data": current_weather.days[0].is_day}]],
@@ -37,7 +36,6 @@ async def by_hourly_event(message: dict, db: AsyncSession = Depends(db_helper.sc
     # Проходимся по каждому прогнозу дня в списке прогнозов
 
     for weather_by_hours in weather_by_hours_list:
-        print(weather_by_hours.text)
         # Проходимся по каждому часу в прогнозе текущего дня
         for hour in weather_by_hours.hours:
             print(hour.time, hour.text, hour.temp, hour.humidity)
@@ -80,7 +78,6 @@ async def registration_event(
     """Функция вызывается для добавления"""
 
     # Извлекаем необходимые данные из сообщения
-    print(message)
     message = UpdateMessage.parse_obj(message)
     city_name = message.message.text
     chat_id = message.message.chat.id
