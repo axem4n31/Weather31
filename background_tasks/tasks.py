@@ -1,17 +1,30 @@
 import asyncio
+import nest_asyncio
+from sqlalchemy import select
+from celery import Celery
 from datetime import timedelta
-from celery.utils.log import get_task_logger
+from models.model import User
+from models.model_settings import async_session
 from background_tasks.celery_conf import app_celery
-from telegram_service.events import help_event
 
-# Определение логгера для асинхронных задач
-logger = get_task_logger(__name__)
+nest_asyncio.apply()
 
 
-@app_celery.task()
-async def test():
-    logger.info("Тест")
-    print("Тест")
+@app_celery.task
+def test(x):
+    try:
+        loop = asyncio.get_event_loop()
+        loop.run_until_complete(async_test(x))
+    except Exception as e:
+        print(f"Error : {e}")
+
+
+async def async_test(x: int):
+    async with async_session() as session:
+        print("123" * x)
+        id_tg = 886953788
+        user = await session.scalar(select(User).where(User.notifications_json is not None))
+        print(user.user_tg_id)
 
 
 @app_celery.task
@@ -25,9 +38,3 @@ def add(message: dict):
     # result = add.apply_async(args=[data], eta=eta_time)
 
 
-app_celery.conf.beat_schedule = {
-    'run-test-every-day': {
-        'task': 'tasks.test',
-        'schedule': timedelta(minutes=1),
-    },
-}
