@@ -23,6 +23,5 @@ app_celery.conf.beat_schedule = {
     'run-test-every-day': {
         'task': 'background_tasks.tasks.test',
         'schedule': timedelta(minutes=1),
-        'args': (5,),
     },
 }
