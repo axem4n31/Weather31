@@ -92,12 +92,10 @@ async def registration_event(
                            reply_markup=markup_keyboard)
         return
     # Создаем пользователя в базе данных
-    utc = get_utc_time(lat=coordinates_data.lat, lon=coordinates_data.lon)
-    notification = NotificationSchema(chat_id=chat_id, utc=utc)
+
     user_created = await create_or_update_user(
         user_tg_id=user_tg_id,
         coordinates_data=coordinates_data,
-        notification=notification,
         db=db
     )
     # Отправляем соответствующее сообщение в зависимости от результата создания пользователя
@@ -129,4 +127,13 @@ async def get_coordinates_from_user_event(message: dict,
         await send_message(chat_id=chat_id, text='Город успешно изменён', reply_markup=markup_keyboard)
         return
     return await send_message(chat_id=chat_id, text='Ваши данные успешно добавлены', reply_markup=markup_keyboard)
+
+
+async def notification_event(chat_id: int, user_tg_id: int,
+                             db: AsyncSession = Depends(db_helper.scoped_session_dependency)):
+    try:
+        print(user_tg_id)
+        await send_message(chat_id=chat_id, text='Скоро будет', reply_markup=None)
+    except Exception as e:
+        print(f"Error notification_event : {e}")
 

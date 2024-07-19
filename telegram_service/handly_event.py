@@ -5,9 +5,11 @@ from fastapi import Request, HTTPException, Depends
 import settings
 from models.model_settings import db_helper
 from telegram_service.events import start_event, help_event, registration_event, change_region_event, forecast_event, \
-    get_coordinates_from_user_event, by_hourly_event
+    get_coordinates_from_user_event, by_hourly_event, notification_event
 
 events_with_db = {
+    "/notifications": notification_event,
+    "Уведомления 🔔": notification_event,
     "/start": start_event,
     "Текущая погода 🌡️": start_event,
     "/forecast": forecast_event,
