@@ -55,5 +55,4 @@ class CityList(BaseModel):
 
 class NotificationSchema(BaseModel):
     chat_id: int
-    utc: str
-    time: List[time] = None
+    time: List[time] | None = None
