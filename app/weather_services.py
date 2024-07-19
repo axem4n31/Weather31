@@ -1,7 +1,10 @@
+import datetime
+from datetime import timezone, datetime
 from typing import List
 
 import httpx
 import timezonefinder
+import pytz
 import settings
 from models.schemas import WeatherSchema, CoordinatesSchema, DaysSchema, HourSchema
 from httpx import AsyncClient
@@ -11,15 +14,19 @@ async def get_city_coordinates(city_name: str) -> CoordinatesSchema | None:
     """
     Returns coordinates based on the city name.
     """
+    url = settings.WEATHER_API + "search.json"
+    url += '?key=' + settings.WEATHER_API_TOKEN
+    url += f"&q={city_name}"
     try:
-        url = settings.GET_COORD_API + 'direct?q=' + city_name + '&limit=1'
-        url += '&appid=' + settings.COORD_API_TOKEN
-
         async with httpx.AsyncClient() as client:
             response = await client.get(url, timeout=10)
         message = response.json()
         if not message:
             return
+        lat = message[0]['lat']
+        lon = message[0]['lon']
+        time = await get_utc_time(lat=lat, lon=lon)
+        print(time)
         return CoordinatesSchema(city=message[0]['name'],
                                  country=message[0]['country'],
                                  lat=message[0]['lat'],
@@ -35,7 +42,7 @@ async def get_weather(lat: float, lon: float, days: int) -> WeatherSchema:
     """
     Based on the coordinates, gets the weather forecast for a specified number of days.
     """
-    url = settings.BASE_TEMPERATURE_API + 'forecast.json'
+    url = settings.WEATHER_API + 'forecast.json'
     url += '?key=' + settings.WEATHER_API_TOKEN
     url += f"&q={lat},{lon}" + f"&days={days}" + '&lang=ru'
 
@@ -101,7 +108,7 @@ async def get_weather_by_hours(lat: float, lon: float, days: int) -> List[DaysSc
     """
     Based on the coordinates, gets the weather forecast for each hour of a specified day
     """
-    url = settings.BASE_TEMPERATURE_API + 'forecast.json'
+    url = settings.WEATHER_API + 'forecast.json'
     url += '?key=' + settings.WEATHER_API_TOKEN
     url += f"&q={lat},{lon}" + f"&days={days}" + '&lang=ru'
     async with AsyncClient() as client:
@@ -140,14 +147,24 @@ async def get_weather_by_hours(lat: float, lon: float, days: int) -> List[DaysSc
     return forecast_for_the_whole_days
 
 
-def get_utc_time(lat: float, lon: float):
+async def get_utc_time(lat: float, lon: float) -> datetime:
     """
     Determines the time zone based on coordinates.
     """
-    tf = timezonefinder.TimezoneFinder()
+    try:
+        tf = timezonefinder.TimezoneFinder()
 
-    timezone_str = tf.certain_timezone_at(lat=lat, lng=lon)
-    if timezone_str is None:
-        print('Такого часового пояса нет')
+        timezone_str = tf.certain_timezone_at(lat=lat, lng=lon)
 
-    return timezone_str
+        if timezone_str is None:
+            timezone_str = "Europe/Moscow"
+
+        local_time_zone = pytz.timezone(timezone_str)
+        local_time = datetime.now(local_time_zone)
+        utc_time = local_time.astimezone(pytz.utc)
+        print(f"UTC - {utc_time}, local_time - {local_time}, local_time_zone - {local_time_zone}")
+
+        return utc_time
+    except Exception as e:
+        print(f"Error get_utc_time : {e}")
+
