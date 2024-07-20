@@ -21,7 +21,7 @@ app_celery.conf.update(
 
 app_celery.conf.beat_schedule = {
     'run-test-every-day': {
-        'task': 'background_tasks.tasks.test',
+        'task': 'background_tasks.tasks.recurring_task_once_a_day',
         'schedule': timedelta(minutes=1),
     },
 }
