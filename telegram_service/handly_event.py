@@ -5,7 +5,7 @@ from fastapi import Request, HTTPException, Depends
 import settings
 from models.model_settings import db_helper
 from telegram_service.events import start_event, help_event, registration_event, change_region_event, forecast_event, \
-    get_coordinates_from_user_event, by_hourly_event, notification_event
+    get_coordinates_from_user_event, by_hourly_event, notification_event, change_notification_times_event
 
 events_with_db = {
     "/notifications": notification_event,
@@ -48,6 +48,8 @@ async def handle_bot_events(request: Request, secret_key: str,
                     await events_with_db[text](chat_id, user_tg_id, db=db)
                 elif text in events_without_db:
                     await events_without_db[text](chat_id)
+                elif text[0] == '[' and text[-1] == ']':
+                    await change_notification_times_event(chat_id=chat_id, user_tg_id=user_tg_id, time_str=text, db=db)
                 else:
                     await registration_event(message=message, db=db)
 

@@ -1,10 +1,13 @@
+from datetime import time
+
 from fastapi import Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 import telegram_service.utils
-from models.model_services import create_or_update_user
+from models.model_services import create_or_update_user, create_or_update_notification
 from models.model_settings import db_helper
 from models.schemas import CoordinatesSchema, NotificationSchema
-from telegram_service.service import send_message, check_user_location, get_user_coordinates, delete_message
+from telegram_service.service import send_message, check_user_location, get_user_coordinates, delete_message, \
+    check_time_validation
 from telegram_service.utils import markup_keyboard, get_location_keyboard, UpdateMessage
 from app.weather_services import get_weather, get_city_coordinates, get_weather_by_hours, get_utc_time
 
@@ -136,4 +139,20 @@ async def notification_event(chat_id: int, user_tg_id: int,
         await send_message(chat_id=chat_id, text='Скоро будет', reply_markup=None)
     except Exception as e:
         print(f"Error notification_event : {e}")
+
+
+async def change_notification_times_event(chat_id: int, user_tg_id: int, time_str: str, db: AsyncSession):
+    times = await check_time_validation(chat_id=chat_id, time_str=time_str)
+    if times is None:
+        return
+    notification_data = NotificationSchema(
+        chat_id=chat_id,
+        time=times,
+    )
+    result = await create_or_update_notification(user_tg_id=user_tg_id, notification_data=notification_data, db=db)
+    text = "Данные успешно сохранены"
+    if result is False:
+        text = "Необходимо сначала ввести город"
+    await send_message(chat_id=chat_id, text=text, reply_markup=markup_keyboard)
+
 
