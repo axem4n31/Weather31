@@ -147,7 +147,7 @@ async def get_weather_by_hours(lat: float, lon: float, days: int) -> List[DaysSc
     return forecast_for_the_whole_days
 
 
-async def get_utc_time(lat: float, lon: float) -> datetime:
+async def get_utc_time(lat: float, lon: float, times: List[str]) -> List[datetime]:
     """
     Determines the time zone based on coordinates.
     """
@@ -159,12 +159,15 @@ async def get_utc_time(lat: float, lon: float) -> datetime:
         if timezone_str is None:
             timezone_str = "Europe/Moscow"
 
-        local_time_zone = pytz.timezone(timezone_str)
-        local_time = datetime.now(local_time_zone)
-        utc_time = local_time.astimezone(pytz.utc)
-        print(f"UTC - {utc_time}, local_time - {local_time}, local_time_zone - {local_time_zone}")
+        utc_times = []
+        for time_str in times:
+            time = time_str.replace(" ", "").strip()
+            local_time_zone = pytz.timezone(timezone_str)
+            local_time = local_time_zone.localize(datetime.strptime(time, '%H:%M'))
+            utc_time = local_time.astimezone(pytz.utc)
+            utc_times.append(utc_time)
+            print(f"UTC - {utc_time}, local_time - {local_time}, local_time_zone - {local_time_zone}")
 
-        return utc_time
+        return utc_times
     except Exception as e:
-        print(f"Error get_utc_time : {e}")
-
+        print(f"Error in get_utc_time: {e}")

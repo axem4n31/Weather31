@@ -1,7 +1,7 @@
 from typing import List
 
 from pydantic import BaseModel
-from datetime import time
+from datetime import time, datetime
 
 
 class HourSchema(BaseModel):
@@ -55,4 +55,4 @@ class CityList(BaseModel):
 
 class NotificationSchema(BaseModel):
     chat_id: int
-    time: List[time] | None = None
+    time: List[str]
