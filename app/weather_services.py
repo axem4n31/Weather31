@@ -147,27 +147,37 @@ async def get_weather_by_hours(lat: float, lon: float, days: int) -> List[DaysSc
     return forecast_for_the_whole_days
 
 
-async def get_utc_time(lat: float, lon: float, times: List[str]) -> List[datetime]:
+async def get_utc_time(lat: float, lon: float, times: list) -> list:
     """
-    Determines the time zone based on coordinates.
+    Determines the UTC time based on coordinates and converts local times to UTC.
     """
     try:
         tf = timezonefinder.TimezoneFinder()
-
         timezone_str = tf.certain_timezone_at(lat=lat, lng=lon)
-
         if timezone_str is None:
             timezone_str = "Europe/Moscow"
 
+        local_time_zone = pytz.timezone(timezone_str)
         utc_times = []
-        for time_str in times:
-            time = time_str.replace(" ", "").strip()
-            local_time_zone = pytz.timezone(timezone_str)
-            local_time = local_time_zone.localize(datetime.strptime(time, '%H:%M'))
+
+        # Assuming today's date for local time, adjust as needed
+        today_date = datetime.now().date()
+
+        for t in times:
+            # Extract hours and minutes from the datetime object t
+            hours = t.hour
+            minutes = t.minute
+
+            # Combine with today's date and localize to local timezone
+            local_time = local_time_zone.localize(
+                datetime(today_date.year, today_date.month, today_date.day, hours, minutes))
+
+            # Convert local time to UTC
             utc_time = local_time.astimezone(pytz.utc)
             utc_times.append(utc_time)
-            print(f"UTC - {utc_time}, local_time - {local_time}, local_time_zone - {local_time_zone}")
 
         return utc_times
+
     except Exception as e:
-        print(f"Error in get_utc_time: {e}")
+        print(f"Error get_utc_time: {e}")
+        return []
