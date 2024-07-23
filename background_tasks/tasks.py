@@ -9,7 +9,7 @@ from app.weather_services import get_utc_time, get_weather
 from models.model import User
 from models.model_settings import async_session
 from background_tasks.celery_conf import app_celery
-from telegram_service.service import send_message
+from telegram_service.service import send_message, validation_str_to_time
 
 nest_asyncio.apply()
 
@@ -25,7 +25,6 @@ def recurring_task_once_a_day():
 
 async def create_time_task():
     async with async_session() as session:
-        # user = await session.scalar(select(User).where(or_(User.notifications_json.isnot(None))))
         result = await session.execute(
             select(User).where(or_(User.notifications_json.isnot(None)))
         )
@@ -35,15 +34,17 @@ async def create_time_task():
                 lat, lon = user.lat, user.lon
                 notifications = json.loads(user.notifications_json)
                 chat_id = notifications["chat_id"]
-                times = notifications["time"]
-                eta_time = await get_utc_time(lat=lat, lon=lon, times=times)
+                times_str = notifications["time"]
+                times_obj = await validation_str_to_time(time_list_str=times_str)
+                eta_time = await get_utc_time(lat=lat, lon=lon, times=times_obj)
+                results = []
                 for i in eta_time:
                     print(i)
-                    # send_message_task.apply_async(args=[chat_id, lat, lon], eta=i)
+                    result = await send_message_task.apply_async(args=[chat_id, lat, lon]).collect()
 
 
 @app_celery.task
-async def send_message_task(chat_id: int, lat: int, lon: int):
+async def send_message_task(chat_id: int, lat: float, lon: float):
     current_weather = await get_weather(lat=lat, lon=lon, days=1)
     more_details_by_hour = {
         "inline_keyboard": [
@@ -53,5 +54,6 @@ async def send_message_task(chat_id: int, lat: int, lon: int):
            f"\nОблачность {current_weather.cloud}%. Влажность {current_weather.humidity}%." \
            f"\n{current_weather.city}, {current_weather.region}, {current_weather.country}"
     await send_message(chat_id=chat_id, text=text, reply_markup=more_details_by_hour)
+    return True
 
 
