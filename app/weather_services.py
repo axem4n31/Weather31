@@ -5,6 +5,8 @@ from typing import List
 import httpx
 import timezonefinder
 import pytz
+from fastapi import HTTPException
+
 import settings
 from models.schemas import WeatherSchema, CoordinatesSchema, DaysSchema, HourSchema
 from httpx import AsyncClient
@@ -23,10 +25,7 @@ async def get_city_coordinates(city_name: str) -> CoordinatesSchema | None:
         message = response.json()
         if not message:
             return
-        lat = message[0]['lat']
-        lon = message[0]['lon']
-        time = await get_utc_time(lat=lat, lon=lon)
-        print(time)
+
         return CoordinatesSchema(city=message[0]['name'],
                                  country=message[0]['country'],
                                  lat=message[0]['lat'],
@@ -181,3 +180,8 @@ async def get_utc_time(lat: float, lon: float, times: list) -> list:
     except Exception as e:
         print(f"Error get_utc_time: {e}")
         return []
+
+
+async def check_token(token: str):
+    if token != settings.TOKEN_WEATHER_31:
+        raise HTTPException(status_code=401, detail="Unauthorized")
