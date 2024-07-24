@@ -56,3 +56,14 @@ class CityList(BaseModel):
 class NotificationSchema(BaseModel):
     chat_id: int
     time: List[str]
+
+
+class CoordSchema(BaseModel):
+    lat: float
+    lon: float
+
+
+class GetWeatherSchema(BaseModel):
+    city: List[CoordSchema] | str
+    days: int = 1
+    token: str | None = None
