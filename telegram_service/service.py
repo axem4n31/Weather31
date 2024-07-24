@@ -1,6 +1,7 @@
 import json
-from datetime import time, datetime
+from datetime import time
 from typing import Tuple, List
+
 from httpx import AsyncClient
 from sqlalchemy import select, and_
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -77,3 +78,5 @@ async def validation_str_to_time(time_list_str: list | str) -> List[time]:
         time_objects.append(time_obj)
 
     return time_objects
+
+
