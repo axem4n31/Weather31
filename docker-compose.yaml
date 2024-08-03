@@ -4,8 +4,6 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    volumes:
-    - ./server:/server
     command: >
       bash -c
       "
