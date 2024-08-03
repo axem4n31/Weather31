@@ -20,9 +20,9 @@ services:
       POSTGRES_DB: postgres
       POSTGRES_HOST: db
       REDIS_HOST: redis
-      WEATHER_API_TOKEN: 52279adb38b340d8829133744240606
-      TG_TOKEN: 7327313698:AAHkuzdehj7_buWIEbkim9PjBdyEWE1sZxg
-      WEBHOOK_SECRET_KEY: nlkojsthnkwelhgijijkjkhbkbfksbnkflbhskhfbIBDkfbnskbfkAllhamdulilyajnks
+      WEATHER_API_TOKEN:
+      TG_TOKEN:
+      WEBHOOK_SECRET_KEY:
       XTUNNEL_URL:
     env_file:
       - .env
