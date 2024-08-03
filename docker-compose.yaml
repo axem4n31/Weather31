@@ -1,0 +1,47 @@
+version: "0.9"
+services:
+  dq-server:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+    - ./server:/server
+    command: >
+      bash -c
+      "
+      uvicorn main:app --reload --host 0.0.0.0 --port 8080
+      "
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 123123
+      POSTGRES_DB: postgres
+      POSTGRES_HOST: db
+      REDIS_HOST: redis
+      WEATHER_API_TOKEN: 52279adb38b340d8829133744240606
+      TG_TOKEN: 7327313698:AAHkuzdehj7_buWIEbkim9PjBdyEWE1sZxg
+      WEBHOOK_SECRET_KEY: nlkojsthnkwelhgijijkjkhbkbfksbnkflbhskhfbIBDkfbnskbfkAllhamdulilyajnks
+      XTUNNEL_URL:
+    env_file:
+      - .env
+    depends_on:
+      - db
+      - redis
+  db:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 123123
+      POSTGRES_DB: postgres
+    restart: always
+    ports:
+      - "5432:5432"
+  redis:
+    image: redis
+    ports:
+      - "6379:6379"
+volumes:
+  postgres_data:
+  usr-data:
