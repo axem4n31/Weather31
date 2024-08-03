@@ -1,6 +1,6 @@
 version: "0.9"
 services:
-  dq-server:
+  server:
     build:
       context: .
       dockerfile: Dockerfile
@@ -14,18 +14,18 @@ services:
     restart: unless-stopped
     ports:
       - "8080:8080"
-    environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: 123123
-      POSTGRES_DB: postgres
-      POSTGRES_HOST: db
-      REDIS_HOST: redis
-      WEATHER_API_TOKEN:
-      TG_TOKEN:
-      WEBHOOK_SECRET_KEY:
-      XTUNNEL_URL:
     env_file:
       - .env
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_HOST=db
+      - REDIS_HOST=redis
+      - WEATHER_API_TOKEN=${WEATHER_API_TOKEN}
+      - TG_TOKEN=${TG_TOKEN}
+      - WEBHOOK_SECRET_KEY=${WEBHOOK_SECRET_KEY}
+      - API_URL=${API_URL}
     depends_on:
       - db
       - redis
