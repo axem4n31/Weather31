@@ -14,4 +14,4 @@ WEATHER_API = 'http://api.weatherapi.com/v1/'
 WEATHER_API_TOKEN = getenv('WEATHER_API_TOKEN')
 TOKEN_WEATHER_31 = getenv('TOKEN_WEATHER_31')
 BROKER_URL = f"redis://{getenv('REDIS_HOST')}:6379"
-BASE_HOST = getenv('HOST')
+BASE_HOST = getenv('API_URL')
